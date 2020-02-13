@@ -11,7 +11,7 @@ node-storinfo supports initializing either a standalone or full StorinfoClient o
 
 A standalone client can be created as follows:
 
-```
+``` js
 const mod_storinfo = require('storinfo');
            
 var client = mod_storinfo.createClient({standalone: true});
@@ -27,22 +27,22 @@ A full client (one that actually connects to the Storinfo service in a Manta dep
 
 For example:
 
-```
+``` js
 var opts = {
     standalone: false,
     url: 'http://storinfo.domain'
-    "cueballOpts": {
-        "spares": 4,
-        "maximum": 10,
-        "recovery": {
-            "default": {
-                "timeout": 2000,
-                "retries": 5,
-                "delay": 250,
-                "maxDelay": 1000
+    cueballOpts: {
+        spares: 4,
+        maximum: 10,
+        recovery: {
+            default: {
+                timeout: 2000,
+                retries: 5,
+                delay: 250,
+                maxDelay: 1000
             }
         },
-        "resolvers": ["nameservice.domain"]
+        resolvers: ["nameservice.domain"]
     }
 };
 
@@ -147,5 +147,3 @@ The automated tests do no require access to a Manta deployment.  They can be run
 ```
 
 *NOTE* This module is load-bearing for both the muskie (webapi) and buckets-api MantaV2 services.  Therefore, if you make changes to this node package, you should sanity check the functionality of both services before integration.
-
-#### 

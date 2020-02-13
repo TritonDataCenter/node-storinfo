@@ -143,7 +143,7 @@ MChoose.prototype.checkHelpRequested = function (subcmd, opts, cb) {
  * poll and a count of polls to complete.
  *
  * This requires instantiating a StorinfoClient, which requires some
- * onfiguration from the user.  This command expects the muskie|buckets-api
+ * configuration from the user.  This command expects the muskie|buckets-api
  * configuration format.  By default, we assume the configuration is located at
  * /opt/smartdc/{muskie|buckets-api}/etc/config.json, which is where the
  * configuration is located in a deployed API zone.
@@ -492,7 +492,13 @@ MChoose.prototype.do_choose = function do_choose(subcmd, opts, args, cb) {
                         return;
                     }
 
-                    user_db = JSON.parse(contents);
+                    try {
+                        user_db = JSON.parse(contents);
+                    } catch (e) {
+                        vcb(new VError('Unable to parse JSON: %s',
+                            e.message));
+                        return;
+                    }
                     vcb();
                 });
             } else {
@@ -501,7 +507,12 @@ MChoose.prototype.do_choose = function do_choose(subcmd, opts, args, cb) {
                     input += data;
                 });
                 process.stdin.on('end', function () {
-                    user_db = JSON.parse(input);
+                    try {
+                        user_db = JSON.parse(input);
+                    } catch (e) {
+                        vcb(new VError('Unable to parse JSON: %s', e.message));
+                        return;
+                    }
                     vcb();
                 });
             }

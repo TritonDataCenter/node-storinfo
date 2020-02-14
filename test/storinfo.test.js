@@ -8,21 +8,19 @@
  * Copyright 2020 Joyent, Inc.
  */
 
-const bunyan = require('bunyan');
 const mod_storinfo = require('../lib/client.js');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert-plus');
 
-///--- Constants
+// /--- Constants
 
 const THREE_SIGMA = 0.997;
 const DEF_MAX_STREAMING_SIZE_MB = 5120;
 const DEF_MAX_PERCENT_UTIL = 90;
-const DEF_MAX_OPERATOR_PERCENT_UTIL = 92;
 
 
-///--- Tests
+// /--- Tests
 
 /**
  * Sum values in array
@@ -31,7 +29,8 @@ const DEF_MAX_OPERATOR_PERCENT_UTIL = 92;
  */
 function sum(values) {
     return values.reduce(function (acc, v) {
-        return (acc += v);
+        acc += v;
+        return (acc);
     }, 0);
 }
 
@@ -108,8 +107,8 @@ function probablyNormal(kvs) {
         return (Math.abs(z) > 3);
     });
 
-    //NOTE: in this case, probably outliers.length === 0 would be
-    //enough
+    // NOTE: in this case, probably outliers.length === 0 would be
+    // enough
     return ((outliers.length / values.length) < (1 - THREE_SIGMA));
 }
 
@@ -144,9 +143,8 @@ exports.storinfoTest = function (t) {
             name: 'storinfo_test',
             stream: process.stdout
         }),
-        defaultMaxStreamingSizeMB: DEF_MAX_OPERATOR_PERCENT_UTIL,
+        defaultMaxStreamingSizeMB: DEF_MAX_STREAMING_SIZE_MB,
         maxUtilizationPct: DEF_MAX_PERCENT_UTIL,
-        maxOperatorUtilizationPct: DEF_MAX_OPERATOR_PERCENT_UTIL,
         multiDC: true,
         standalone: true
     });
@@ -193,18 +191,21 @@ exports.storinfoTest = function (t) {
         storinfo.choose({}, function onChosen(err, sharks) {
             assert.ifError(err);
             var delta = new Date().getTime() - start;
-            if (delta > max)
+            if (delta > max) {
                 max = delta;
-            if (delta < min)
+            }
+            if (delta < min) {
                 min = delta;
+            }
             total += delta;
 
             Object.keys(sharks).forEach(function track(k) {
                 var dc_names = [];
                 sharks[k].forEach(function (s) {
                     var id = s.manta_storage_id;
-                    if (!hosts[id])
+                    if (!hosts[id]) {
                         hosts[id] = 0;
+                    }
 
                     hosts[id]++;
 
@@ -212,8 +213,9 @@ exports.storinfoTest = function (t) {
                 });
 
                 var dc_key = dc_names.join(' ');
-                if (!dcs[dc_key])
+                if (!dcs[dc_key]) {
                     dcs[dc_key] = 0;
+                }
                 dcs[dc_key]++;
             });
 

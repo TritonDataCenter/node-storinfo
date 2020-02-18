@@ -1,7 +1,7 @@
 # node-storinfo
 This repository is part of the Joyent Manta project.  For contribution guidelines, issues, and general documentation, visit the main [Manta](http://github.com/joyent/manta) project page.
 
-node-storinfo is a NodeJS client for the [Manta Storinfo service](http://github.com/joyent/manta-storinfo).
+node-storinfo is a NodeJS client for the [Manta Storinfo service](https://github.com/joyent/manta-storinfo).
 
 
 
@@ -57,7 +57,7 @@ Additionally, the following _optional_ parameters can be specified when creating
 | ------------------------- | ------- | ------------------------------------------------------------ |
 | log                       | object  | Bunyan logger.  If specified, node-storinfo will write to this log and also pass it down to cueball and restify.  Otherwise, a new logger will be created. |
 | multiDC                   | boolean | Specifies whether the Manta environment contains multiple data centers.  This affects the object placement algorithm implemented by the `choose` method.  In single DC test environments, this can set to false to override the requirement for spreading replicas across DCs.  Default is *false* |
-| pollInterval              | number  | If specified, the storinfo client will poll the Storinfo service at frequency specified by pollInterval.  The value is interpreted as seconds.  A 'topology' event will be emitted by the StorinfoClient object after each successful poll. |
+| pollInterval              | number  | If specified, the storinfo client will invoke the GetStorageNodes API for the Storinfo service at the frequency specified by pollInterval.  The value is interpreted as milliseconds.  A 'topology' event will be emitted by the StorinfoClient object after each successful poll. |
 | defaultMaxStreamingSizeMB | number  | The maximum allowed size (in MB) for a streaming upload. Default is 5120 MB                                           |
 | maxUtilizationPct         | number  | The maximum storage node utilization threshold (as a percentage) for normal (non-operator) object writes.  This affects the object placement algorithm implemened by the `choose` method.  Default is 90.|
 
@@ -65,34 +65,34 @@ Additionally, the following _optional_ parameters can be specified when creating
 
 ## StorinfoClient methods
 
-#### poll
+#### getStorageNodes
 
-The poll method returns the Storinfo services cached view of the entire manta_storage bucket, as an array of objects sorted by manta_storage_id.  This method will return an error if invoked on a standalone client.
+The getStorageNodes method returns the Storinfo services cached view of the entire manta_storage bucket, as an array of objects sorted by manta_storage_id.  This method will return an error if invoked on a standalone client.
 
 This asynchronous method takes a the following argument:
 
 | *argument* | *type*   | *description*                                                |
 | ---------- | -------- | ------------------------------------------------------------ |
-| callback   | function | Callback to be invoked upon completion.  The callback will be invoked with two parameters: "obj" and "err".  On success, the "err" parameter to the callback will be null and the "obj param will contain an array of for the requested storage node.  On failure, the "obj" param will be null and "err' will contain a verror object describing the failure. |
+| callback(err, obj) | function | Callback to be invoked upon completion.  The callback will be invoked with two parameters: "res" and "err".  On success, the "err" parameter to the callback will be null and the "res" param will contain an array of for the requested storage node.  On failure, the "res" param will be null and "err" will contain a verror object describing the failure. |
 
 
 
-#### pollSpecific
+#### getStorageNode
 
-The pollSpecific method returns the Storinfo services cached view of a single row from the manta_storage bucket, corresponding to the storage node with the specified manta_storage_id.   This method will return an error if invoked on a standalone client.
+The getStorageNode method returns the Storinfo services cached view of a single row from the manta_storage bucket, corresponding to the storage node with the specified manta_storage_id.   This method will return an error if invoked on a standalone client.
 
 This asynchronous method takes a the following arguments:
 
 | *argument* | *type*   | *description*                                                |
 | ---------- | -------- | ------------------------------------------------------------ |
 | storageid  | string   | Manta storage ID of the storage node on which to request storage utilization data |
-| callback   | function | Callback to be invoked upon completion.  The callback will be invoked with two parameters: "obj" and "err".  On success, the "err" parameter to the callback will be null and the "obj param will contain manta_storage object for the requested storage node.  On failure, the "obj" param will be null and "err' willc ontain a verror object describing the failure. |
+| callback(err, obj) | function | Callback to be invoked upon completion.  The callback will be invoked with two parameters: "obj" and "err".  On success, the "err" parameter to the callback will be null and the "obj param will contain manta_storage object for the requested storage node.  On failure, the "obj" param will be null and "err' willc ontain a verror object describing the failure. |
 
 
 
 #### choose
 
-The choose method Choose takes a desired number of replicas and a size (in bytes), and then selects three random "tuples" (the number of items in a tuple is #replicas).  The first random tuple is "primary," and then we have 2 backup tuples.
+The choose method takes a desired number of replicas and a size (in bytes), and then selects three random "tuples" (the number of items in a tuple is #replicas).  The first random tuple is "primary," and then we have 2 backup tuples.
 
 Conceptually it looks like this:
 
@@ -107,7 +107,7 @@ Conceptually it looks like this:
 
 Where the objects `a...N` are the full JSON representation of a single storage node.
 
-The choose method can be invoked for both standalone and for StorinfoClient objects.  For non-standalone clients, this method requires that the StorinfoClient has successfully performed at least on poll from the Storinfo service.  This can be assured by either manually calling the `poll` method or by specifying the pollInterval property during client creation and then waiting for a 'topology' event.
+The choose method can be invoked for both standalone and for StorinfoClient objects.  For non-standalone clients, this method requires that the StorinfoClient has successfully performed at least on poll from the Storinfo service.  This can be assured by either manually calling the `getStorageNodes` method or by specifying the pollInterval property during client creation and then waiting for a 'topology' event.
 
 This method takes the argument object and a callback.  The properties of the argument object are described below:
 
@@ -119,7 +119,7 @@ This method takes the argument object and a callback.  The properties of the arg
 
 ## mchoose CLI
 
-This module includes a CLI `bin/mchoose` which provides a scriptable interface for invoking the `poll` and `choose` methods.  The usage is described below:
+This module includes a CLI `bin/mchoose` which provides a scriptable interface for invoking the `getStorageNodes` and `choose` methods.  The usage is described below:
 
 ```
 Models the behavior of the Manta's object placement logic.

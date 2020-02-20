@@ -1,8 +1,0 @@
-cscope.in.out
-cscope.po.out
-cscope.out
-/deps
-/build
-/node_modules
-/test
-/tools

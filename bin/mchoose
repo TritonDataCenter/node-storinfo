@@ -16,8 +16,6 @@ const mod_bunyan = require('bunyan');
 const mod_cmdln = require('cmdln');
 const mod_fs = require('fs');
 const mod_jsprim = require('jsprim');
-const mod_lstream = require('lstream');
-const mod_path = require('path');
 const mod_storinfo = require('storinfo');
 const mod_tab = require('tab');
 const mod_util = require('util');
@@ -28,7 +26,7 @@ const MultiError = require('verror').MultiError;
 const sprintf = mod_util.format;
 const VError = mod_verror.VError;
 
-///-- Globals
+// Globals
 
 const NAME = 'mchoose';
 var LOG = mod_bunyan.createLogger({
@@ -36,9 +34,6 @@ var LOG = mod_bunyan.createLogger({
     level: process.LOG_LEVEL || 'error',
     stream: process.stderr
 });
-
-///--- Constants
-const DEF_POLL_INTERVAL = 1;
 
 var defConfig = '';
 if (mod_fs.existsSync('/opt/smartdc/muskie')) {
@@ -191,17 +186,11 @@ MChoose.prototype.do_poll = function do_poll(subcmd, opts, args, cb) {
         return;
     }
 
-    if (opts.percentage && opts.percentage > 100) {
-        cb(new VError('percentage should not be greater than 100 percent'));
-        return;
-    }
-
     p_opts = {
         log: LOG,
         url: cfg.storinfo.url,
         cueballOpts: cfg.storinfo.cueballOpts,
         defaultMaxStreamingSizeMB: cfg.defaultMaxStreamingSizeMB,
-        maxUtilizationPct: opts.percentage || cfg.storage.maxUtilizationPct,
         multiDC: cfg.storage.multiDC,
         standalone: false
     };
@@ -211,13 +200,7 @@ MChoose.prototype.do_poll = function do_poll(subcmd, opts, args, cb) {
 
     function printTabularSummary(db) {
         mod_assert.object(db, 'db');
-        var summary, dcs, columns, rows;
-
-        summary = [];
-        summary.push('polling options:');
-        summary.push(' max percentage utilization: ' +
-            p_opts.maxUtilizationPct);
-        summary.push('');
+        var dcs, columns, rows;
 
         dcs = Object.keys(db);
 
@@ -260,11 +243,6 @@ MChoose.prototype.do_poll = function do_poll(subcmd, opts, args, cb) {
                 rows.push(obj);
             });
         });
-
-        if (!opts.header) {
-            console.log(summary.join('\n'));
-        }
-
 
         mod_tab.emitTable({
             columns: columns,
@@ -321,13 +299,6 @@ MChoose.prototype.do_poll.options = commonOptions.concat([
         group: 'mchoose poll options'
     },
     {
-        names: ['percentage', 'p'],
-        type: 'positiveInteger',
-        help: 'Poll with custom utilization percentage maximum (overrides ' +
-            'config/default values)',
-        helpArg: 'PERCENTAGE'
-    },
-    {
         names: ['all', 'a'],
         type: 'bool',
         default: false,
@@ -336,7 +307,7 @@ MChoose.prototype.do_poll.options = commonOptions.concat([
     {
         names: [ 'omitHeader', 'H' ],
         type: 'bool',
-        help: 'Omit summary and header row from tabular output',
+        help: 'Omit header row from tabular output',
         default: false
     },
     {
@@ -370,13 +341,6 @@ MChoose.prototype.do_poll.help = [
     '   "storage": an object with the following fields:',
     '       "moray": a Moray configuration object',
     '       "lag": allowable grace period on storage records in ms (optional)',
-    '',
-    'You may override the maximum percent utilization field in the ',
-    'configuration file using the `-p` flag.  For example, if you wanted to ',
-    'see storage information for all storage nodes, regardless of how close ',
-    'to capacity they are, you could poll with a max percentage utilization ',
-    'of 100:',
-    '   mchoose poll -p 100',
     '',
     'You may also print the `poll` output in JSON format, which is suitable',
     'as input to the `choose` subcommand.  For example, to simulate choosing',
@@ -415,6 +379,11 @@ MChoose.prototype.do_choose = function do_choose(subcmd, opts, args, cb) {
     // Basic validation of the muskie/buckets-api config file.
     if (!cfg.hasOwnProperty('storage')) {
         cb(new VError('"storage" configuration not found'));
+        return;
+    }
+
+    if (opts.percentage && opts.percentage > 100) {
+        cb(new VError('percentage should not be greater than 100 percent'));
         return;
     }
 
@@ -579,7 +548,7 @@ MChoose.prototype.do_choose = function do_choose(subcmd, opts, args, cb) {
 
                 p.choose(chooseOpts, function (err, sharks, chooseStats) {
                     if (err) {
-                        if (err.cause().name === 'StorinfoError') {
+                        if (err.cause.name === 'StorinfoError') {
                             p_err = err;
                         } else {
                             vcb(err);
@@ -609,6 +578,12 @@ MChoose.prototype.do_choose = function do_choose(subcmd, opts, args, cb) {
 MChoose.prototype.do_choose.options = commonOptions.concat([
     {
         group: 'mchoose choose options'
+    },
+    {
+        names: ['percentage', 'p'],
+        type: 'positiveInteger',
+        help: 'Override max utilization percentage',
+        helpArg: 'PERCENTAGE'
     },
     {
         names: ['replicas', 'r'],
@@ -655,7 +630,7 @@ MChoose.prototype.do_choose.help = [
     'context as to why the StorinfoClient chooses the storage node sets it',
     'did.',
     '',
-    'Sometimes the StorinfoClienbt cannot choose a storage node set for an',
+    'Sometimes the Storinfo client cannot choose a storage node set for an',
     'object.  In these cases, more informative error messages are provided ',
     'than are typically shown to end users of Manta.',
     '',
@@ -715,7 +690,7 @@ MChoose.prototype.do_choose.help = [
 
 
 
-//--- Mainline
+// Mainline
 
 var cli = new MChoose();
 cli.showErrStack = false;

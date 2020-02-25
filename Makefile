@@ -18,7 +18,7 @@ TAP_EXEC	:= ./node_modules/.bin/tap
 # Configuration used by Makefile.defs and Makefile.targ to generate
 # "check" and "docs" targets.
 #
-JS_FILES	:= $(shell ls *.js) $(shell find lib test -name '*.js')
+JS_FILES	:= $(shell find lib test -name '*.js')
 ESLINT		:= ./node_modules/.bin/eslint
 ESLINT_FILES	:= $(JS_FILES)
 
@@ -30,7 +30,7 @@ all $(TAP_EXEC) $(ESLINT):
 	$(NPM_EXEC) install
 
 clean:
-	rm -f $(CLEAN_FILES)
+	rm -rf $(CLEAN_FILES)
 
 .PHONY: test
 test: | $(TAP_EXEC)
@@ -71,4 +71,3 @@ cutarelease: check
 	    git tag -a "v$$ver" -m "version $$ver ($$date)" && \
 	    git push --tags origin && \
 	    npm publish
-

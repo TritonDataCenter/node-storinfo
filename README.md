@@ -1,13 +1,24 @@
 # node-storinfo
-This repository is part of the Joyent Manta project.  For contribution guidelines, issues, and general documentation, visit the main [Manta](http://github.com/joyent/manta) project page.
 
-node-storinfo is a NodeJS client for the [Manta Storinfo service](https://github.com/joyent/manta-storinfo).
+This repository is part of the Joyent Manta project.  For contribution
+guidelines, issues, and general documentation, visit the main
+[Manta](https://github.com/joyent/manta) project page.
 
+node-storinfo is a NodeJS client for the [Manta Storinfo
+service](https://github.com/joyent/manta-storinfo).
+
+*NOTE* This module is load-bearing for both the muskie (webapi) and buckets-api
+MantaV2 services.  Therefore, if you make changes to this node package, you
+should sanity check the functionality of both services before integration.
 
 
 ## Creating a Storinfo Client
 
-node-storinfo supports initializing either a standalone or full StorinfoClient object.  A standalone client does not establish a network connection to the Storinfo service.  It is primarily used for testing the object placement algorithm implemented by the `choose` method without requiring access to an actual Manta deployment.
+node-storinfo supports initializing either a standalone or full StorinfoClient
+object.  A standalone client does not establish a network connection to the
+Storinfo service.  It is primarily used for testing the object placement
+algorithm implemented by the `choose` method without requiring access to an
+actual Manta deployment.
 
 A standalone client can be created as follows:
 
@@ -15,10 +26,10 @@ A standalone client can be created as follows:
 const mod_storinfo = require('storinfo');
            
 var client = mod_storinfo.createClient({standalone: true});
-
 ```
 
-A full client (one that actually connects to the Storinfo service in a Manta deployment) requires a number of additional properties.
+A full client (one that actually connects to the Storinfo service in a Manta
+deployment) requires a number of additional properties.
 
 | property    | type   | description                                           |
 | ----------- | ------ | ----------------------------------------------------- |
@@ -51,7 +62,8 @@ var client = mod_storinfo.createClient(opts);
 
 
 
-Additionally, the following _optional_ parameters can be specified when creating a StorinfoClient instance:
+Additionally, the following _optional_ parameters can be specified when
+creating a StorinfoClient instance:
 
 | property                  | type    | description                                                  |
 | ------------------------- | ------- | ------------------------------------------------------------ |
@@ -67,7 +79,10 @@ Additionally, the following _optional_ parameters can be specified when creating
 
 #### getStorageNodes
 
-The getStorageNodes method returns the Storinfo services cached view of the entire `manta_storage` bucket, as an array of objects sorted by `manta_storage_id`.  This method will return an error if invoked on a standalone client.
+The getStorageNodes method returns the Storinfo services cached view of the
+entire `manta_storage` bucket, as an array of objects sorted by
+`manta_storage_id`.  This method will return an error if invoked on a
+standalone client.
 
 This asynchronous method takes a the following argument:
 
@@ -79,7 +94,10 @@ This asynchronous method takes a the following argument:
 
 #### getStorageNode
 
-The getStorageNode method returns the Storinfo services cached view of a single row from the `manta_storage` bucket, corresponding to the storage node with the specified `manta_storage_id`.   This method will return an error if invoked on a standalone client.
+The getStorageNode method returns the Storinfo services cached view of a single
+row from the `manta_storage` bucket, corresponding to the storage node with the
+specified `manta_storage_id`.   This method will return an error if invoked on
+a standalone client.
 
 This asynchronous method takes a the following arguments:
 
@@ -92,24 +110,33 @@ This asynchronous method takes a the following arguments:
 
 #### choose
 
-The choose method takes a desired number of replicas and a size (in bytes), and then selects three random "tuples" (the number of items in a tuple is #replicas).  The first random tuple is "primary," and then we have 2 backup tuples.
+The choose method takes a desired number of replicas and a size (in bytes), and
+then selects three random "tuples" (the number of items in a tuple is #replicas).
+The first random tuple is "primary," and then we have 2 backup tuples.
 
 Conceptually it looks like this:
 
- ```
+```
 {
     us-east-1: [a, b, c, ...],
     us-east-2: [d, e, f, ...],
     us-east-3: [g, h, i, ...],
     ...
 }
- ```
+```
 
-Where the objects `a...N` are the full JSON representation of a single storage node.
+Where the objects `a...N` are the full JSON representation of a single storage
+node.
 
-The choose method can be invoked for both standalone and for StorinfoClient objects.  For non-standalone clients, this method requires that the StorinfoClient has successfully performed at least on poll from the Storinfo service.  This can be assured by either manually calling the `getStorageNodes` method or by specifying the pollInterval property during client creation and then waiting for a 'topology' event.
+The choose method can be invoked for both standalone and for StorinfoClient
+objects.  For non-standalone clients, this method requires that the
+StorinfoClient has successfully performed at least on poll from the Storinfo
+service.  This can be assured by either manually calling the `getStorageNodes`
+method or by specifying the pollInterval property during client creation and
+then waiting for a 'topology' event.
 
-This method takes the argument object and a callback.  The properties of the argument object are described below:
+This method takes the argument object and a callback.  The properties of the
+argument object are described below:
 
 | argument   | type    | description                                                  |
 | ---------- | ------- | ------------------------------------------------------------ |
@@ -119,7 +146,9 @@ This method takes the argument object and a callback.  The properties of the arg
 
 ## mchoose CLI
 
-This module includes a CLI `bin/mchoose` which provides a scriptable interface for invoking the `getStorageNodes` and `choose` methods.  The usage is described below:
+This module includes a CLI `bin/mchoose` which provides a scriptable interface
+for invoking the `getStorageNodes` and `choose` methods.  The usage is
+described below:
 
 ```
 Models the behavior of the Manta's object placement logic.
@@ -140,11 +169,10 @@ Commands:
 
 ## Testing
 
-The automated tests do no require access to a Manta deployment.  They can be run as follows:
+The automated tests do not require access to a Manta deployment.  They can be
+run as follows:
 
 ```
 % make test
 ```
-
-*NOTE* This module is load-bearing for both the muskie (webapi) and buckets-api MantaV2 services.  Therefore, if you make changes to this node package, you should sanity check the functionality of both services before integration.
 

@@ -8,10 +8,13 @@
  * Copyright 2020 Joyent, Inc.
  */
 
-const mod_storinfo = require('../lib/client.js');
+const assert = require('assert-plus');
 const fs = require('fs');
 const path = require('path');
-const assert = require('assert-plus');
+
+const test = require('tap').test;
+
+const mod_storinfo = require('../lib/client.js');
 
 // /--- Constants
 
@@ -112,7 +115,7 @@ function probablyNormal(kvs) {
     return ((outliers.length / values.length) < (1 - THREE_SIGMA));
 }
 
-exports.storinfoTest = function (t) {
+test('storinfo records', function (t) {
     // report vars (see report below)
     var min = Infinity;
     var max = 0;
@@ -182,7 +185,7 @@ exports.storinfoTest = function (t) {
         storinfo.close();
         t.ok(hostsNormal, 'Hosts selection appears normally distributed');
         t.ok(dcsNormal, 'DC selection appears normally distributed');
-        t.done();
+        t.end();
     }
 
     // the actual test code, yes, it runs iterations
@@ -223,4 +226,4 @@ exports.storinfoTest = function (t) {
         });
     }
 
-};
+});

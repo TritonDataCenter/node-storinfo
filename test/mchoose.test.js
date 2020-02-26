@@ -9,15 +9,11 @@
 const forkExecWait = require('forkexec').forkExecWait;
 const path = require('path');
 
+const test = require('tap').test;
+
 const BINDIR = path.resolve(__dirname, '../bin');
 const MCHOOSE = path.resolve(BINDIR, 'mchoose');
 
-
-// ---- helper functions
-
-function test(name, testfunc) {
-    module.exports[name] = testfunc;
-}
 
 // ---- tests
 
@@ -42,6 +38,6 @@ test('mchoose -h', function (t) {
         t.equal(info.stdout.lastIndexOf(usagePhrase, 0), 0,
             'stdout from mchoose');
 
-        t.done();
+        t.end();
     });
 });

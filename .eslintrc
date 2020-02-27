@@ -1,0 +1,24 @@
+{
+    "plugins": [
+        "joyent",
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:joyent/style",
+        "plugin:joyent/lint",
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "script",
+        "ecmaFeatures": {
+        }
+    },
+    "env": {
+        "node": true
+    },
+    "rules": {
+        "curly": ["error", "all"],
+        "indent": ["error", 4],
+        "brace-style": ["error", "1tbs", { "allowSingleLine": false }]
+    }
+}

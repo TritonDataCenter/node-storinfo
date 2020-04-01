@@ -58,7 +58,7 @@ cutarelease: check
 	@which json 2>/dev/null 1>/dev/null && \
 	    ver=$(shell json -f package.json version) && \
 	    name=$(shell json -f package.json name) && \
-	    publishedVer=$(shell npm view -j $(shell json -f package.json name)@$(shell json -f package.json version) version 2>/dev/null) && \
+	    publishedVer=$(shell npm view -j $(shell json -f package.json name)@$(shell json -f package.json version) 2>/dev/null | json version) && \
 	    if [[ -n "$$publishedVer" ]]; then \
 		echo "error: $$name@$$ver is already published to npm"; \
 		exit 1; \

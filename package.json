@@ -1,7 +1,7 @@
 {
     "name": "storinfo",
     "description": "Storinfo client",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "Joyent (joyent.com)",
     "main": "./lib/client.js",
     "dependencies": {

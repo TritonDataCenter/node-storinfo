@@ -22,7 +22,7 @@ JS_FILES	:= $(shell find lib test -name '*.js')
 ESLINT		:= ./node_modules/.bin/eslint
 ESLINT_FILES	:= $(JS_FILES)
 
-CLEAN_FILES += ./node_modules npm-debug.log
+CLEAN_FILES += ./node_modules npm-debug.log storinfo-*.tgz test.unit.tap
 
 
 .PHONY: all
